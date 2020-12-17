@@ -25,6 +25,32 @@ def get_first_invalid_number(data: List[int], preamble_size: int) -> (int, bool)
         preamble.append(number)
     return first_invalid_number, found
 
+def get_range_with_sum(data: List[int], target_sum: int, min_window_size: int) -> (bool, int, int):
+    assert(len(data) > min_window_size)
+    range_start_idx = 0
+    range_end_idx = range_start_idx + min_window_size
+    current_sum = sum(data[range_start_idx:range_end_idx])
+    while range_end_idx < len(data):
+        numbers_in_range = range_end_idx - range_start_idx
+        if numbers_in_range < min_window_size:
+            range_end_idx += 1
+            current_sum += data[range_end_idx - 1]
+        elif current_sum == target_sum:
+            break
+        elif current_sum < target_sum:
+            range_end_idx += 1
+            current_sum += data[range_end_idx - 1]
+        elif current_sum > target_sum:
+            current_sum -= data[range_start_idx]
+            range_start_idx += 1
+        
+    return current_sum == target_sum, range_start_idx, range_end_idx
+
+def sum_smallest_and_largest_nums_in_range(data: List[int], target_sum: int, min_window_size: int) -> int:
+    found, range_start_idx, range_end_idx = get_range_with_sum(data, target_sum, min_window_size)
+    subrange = data[range_start_idx:range_end_idx]
+    return sum([min(subrange), max(subrange)]) if found else -1
+
 if __name__ == '__main__':
     filename = 'day09/input.txt'
     data = []
@@ -36,3 +62,4 @@ if __name__ == '__main__':
     invalid_number, found = get_first_invalid_number(data, 25)
     print('Found {}'.format(found))
     print('First number in the list which does not follow the rules is {}'.format(invalid_number))
+    print('Sum of smallest and biggest number in the range is {}'.format(sum_smallest_and_largest_nums_in_range(data, invalid_number, 2)))
